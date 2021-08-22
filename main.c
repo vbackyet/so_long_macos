@@ -1,22 +1,7 @@
 #include "so_long.h"
 #include "get_next_line.h"
-#include <mlx.h>
-#include <stdio.h>
-#include  <unistd.h>
 
-
-
-
-typedef struct	s_data {
-	void	*img;
-	char	*addr;
-	int		bits_per_pixel;
-	int		line_length;
-	int		endian;
-}				t_data;
-
-
-void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
+ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
 	char	*dst;
 
@@ -24,47 +9,39 @@ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
-
-typedef struct s_map{
-	char 	**map;
-	int 	length;
-	int 	width;
-	int x_hero;
-	int y_hero;
-	int zoom;
-
-}				t_map;
-
-
-
-typedef struct	s_game{
-	void *mlx;
-	void *win;
-	void *wall;
-	void *goblin;
-	void *door;
-	void *floor;
-	void *hero;
-	void *coin;
-	int coin_count;
-	int counter;
-	t_map *map;
-
-}				t_game;
- 
-int	ft_strlen(char *str)
+ void process_errors(int error)
 {
-	int	i;
-
-	i = 0;
-	if (!str)
-		return (i); 
-	while (str[i])
+	if (error)
 	{
-		i++;
+		printf("Error:\n");
+		if (error == 1)
+			printf("Формат не соотвестует .ber\n");
+		if (error == 2)
+			printf("Ширина не везде одинаковая\n");
+		if (error == 3)
+			printf("Левая стенка не закрыта\n");
+		if (error == 4)
+			printf("Правая стенка не закрыта\n");
+		if (error == 5)
+			printf("Верхняя стенка не закрыта\n");
+		if (error == 6)
+			printf("Нижняя стенка не закрыта\n");
+		if (error == 7)
+			printf("Не хватает героя\n");
+		if (error == 8)
+			printf("Не хватает выхода\n");
+		if (error == 9)
+			printf("Не хватает монеток\n");
+		if (error == 10)
+			printf("Файл не прочитался\n");
+		if (error == 11)
+			printf("Ошибка маллока\n");
+		if (error == 12)
+			printf("Недостаточно аргументов\n");
+		exit(0);
 	}
-	return (i);
 }
+
 
 static void	key_move_step(t_game *game, int x_hero, int y_hero , int x_wall, int y_wall)
 {
@@ -99,6 +76,7 @@ static void	key_move_step(t_game *game, int x_hero, int y_hero , int x_wall, int
 
 int	key_hook_press(int keycode, t_game *game)
 {
+	printf("%d - keyhook\n", keycode);
 	if (keycode == 13)	
 		key_move_step(game, game->map->x_hero - 1 , game->map->y_hero, game->map->x_hero , game->map->y_hero);
 	if (keycode == 2)	
@@ -112,15 +90,38 @@ int	key_hook_press(int keycode, t_game *game)
 	return (1);
 }
 
+int	key_hook_click(int keycode, t_game *game)
+{
+	exit(1);
+}
 
-// int	key_hook(int keycode, t_game *vars)
-// {
-// 	// printf("HEEEEKKOOOOOOOOOOOOOO");
-// 	printf("%d - keycode\n",keycode );
-// 	// key_move_step(vars, 55*10, 55*12);
-// 	return (1);
-// }
-// wdsa - 13 2 1 0
+int start_heroes(t_game *game)
+{
+	if (game->hero_count == 0)
+		return(7);
+	if (game->exit_count == 0)
+		return(8);
+	if (game->coin_count == 0)
+		return(9);
+	return(0);
+}
+
+
+void init_the_game(t_game *game, int width, int length)
+{
+	game->coin_count = 0;
+	game->counter = 0;
+	game->exit_count = 0;
+	game->hero_count = 0;
+	game->wall = mlx_xpm_file_to_image(game->mlx, "wall.xpm", &width, &length);
+	game->door = mlx_xpm_file_to_image(game->mlx, "door.xpm", &width, &length);
+	game->goblin = mlx_xpm_file_to_image(game->mlx, "goblin.xpm", &width, &length);
+	game->floor = mlx_xpm_file_to_image(game->mlx, "floor.xpm", &width, &length);
+	game->hero = mlx_xpm_file_to_image(game->mlx, "nevsk.xpm", &width, &length);
+	game->coin = mlx_xpm_file_to_image(game->mlx, "chiken.xpm", &width, &length);
+}
+
+
 int	play(t_map *map)
 {
 	// t_data	img;
@@ -128,21 +129,14 @@ int	play(t_map *map)
 
 	game.mlx = mlx_init();
 
-	int zoom = 55;
+	int zoom = 50;
 	int x =zoom * map->length;
 	int y= zoom * map->width;
 	//1 - ширина 2 - высота
 	game.win = mlx_new_window(game.mlx, y, x, "so_long");
 	int width = zoom;
 	int length = zoom;
-	game.coin_count = 0;
-	game.counter = 0;
-	game.wall = mlx_xpm_file_to_image(game.mlx, "wall.xpm", &width, &length);
-	game.door = mlx_xpm_file_to_image(game.mlx, "door.xpm", &width, &length);
-	game.goblin = mlx_xpm_file_to_image(game.mlx, "goblin.xpm", &width, &length);
-	game.floor = mlx_xpm_file_to_image(game.mlx, "floor.xpm", &width, &length);
-	game.hero = mlx_xpm_file_to_image(game.mlx, "alex.xpm", &width, &length);
-	game.coin = mlx_xpm_file_to_image(game.mlx, "coin.xpm", &width, &length);
+	init_the_game(&game, width, length);
 	x = x/zoom;
 	y = y/zoom;
 	while (y)
@@ -159,6 +153,7 @@ int	play(t_map *map)
 			if (map->map[x-1][y-1] == 'P')
 			{
 				mlx_put_image_to_window(game.mlx, game.win , game.hero, y*zoom - zoom , x*zoom - zoom);
+				game.hero_count++;
 				map->x_hero = x-1;
 				map->y_hero = y-1;
 			}
@@ -168,31 +163,30 @@ int	play(t_map *map)
 				game.coin_count++;
 			}
 			if (map->map[x-1][y-1] == 'E')
+			{
 				mlx_put_image_to_window(game.mlx, game.win , game.door, y*zoom - zoom , x*zoom - zoom);
+				game.exit_count++;
+			}
 			}
 			x--;
 		}
 		x = map->length;
 		y--;
 	}
-	// printf("HEEEEKKOOOOOOOOOOOOOO2");
-	// mlx_put_image_to_window(game.mlx, game.win , game.goblin, zoom*10 , zoom *10);
-	// mlx_hook(game.win, 2, 1L<<0, key_hook_press, &game);
 	map->zoom = zoom;
 	game.map = map;
-
+	int error = start_heroes(&game);
+	if (error)
+		process_errors(error);
 	mlx_hook(game.win, 2, 1L<<0, key_hook_press, &game);
+	mlx_hook(game.win, 17, 1L<<0, key_hook_click, &game);
 	// pri/ntf("HEEEEKKOOOOOOOOOOOOOO3");
 	mlx_loop(game.mlx);
 	return(0);
 }
 
 
-void process_errors(int error)
-{
-	if (error)
-		exit(0);
-}
+
 
 
 // int	ft_strlen(const char *s)
@@ -238,123 +232,7 @@ int check_the_type_of_map(char *name_of_the_map)
 
 
 
-char	*ft_substr(char *s, unsigned int start, size_t len)
-{
-	size_t	s_length;
-	char	*s_start;
-	char	*new_string_start;
-	char	*new_string;
 
-	if (s == NULL)
-		return (NULL);
-	new_string_start = malloc(sizeof(char) * (len + 1));
-	if (new_string_start == NULL)
-		return (NULL);
-	new_string = new_string_start;
-	s_length = ft_strlen(s);
-	s_start = (char *)s;
-	s += start;
-	while ((size_t)(s - s_start) < s_length && len--)
-		*new_string++ = *s++;
-	*new_string = '\0';
-	return (new_string_start);
-}
-
-
-
-static int			count_words(char const *s, char c)
-{
-	size_t word_count;
-	size_t skipper;
-
-	word_count = 0;
-	skipper = 1;
-	while (*s)
-	{
-		if (*s != c && skipper)
-		{
-			skipper = 0;
-			word_count++;
-		}
-		else if (*s++ == c)
-			skipper = 1;
-	}
-	return (word_count);
-}
-
-static char	*skip_equal_chars(char *s, char c)
-{
-	while (*s && *s == c)
-		s++;
-	return (s);
-}
-
-static void			create_words(
-	char **words, char *s, char c, size_t word_count)
-{
-	char *pointerator;
-
-	s = skip_equal_chars(s, c);
-	while (word_count--)
-	{
-		pointerator = ft_strchr(s, c);
-		if (pointerator != NULL)
-		{
-			*words = ft_substr(s, 0, pointerator - s);
-			s = skip_equal_chars(pointerator, c);
-		}
-		else
-			*words = ft_substr(s, 0, ft_strlen(s) + 1);
-		words++;
-	}
-	*words = NULL;
-}
-
-char				**ft_split(char *s, char c, t_map *map)
-{
-	size_t	word_count;
-	char	**words;
-
-	if (s == NULL)
-		return (NULL);
-	word_count = count_words(s, c);
-	map->length = word_count;
-	words = malloc(sizeof(char **) * (word_count + 1));
-	if (words == NULL)
-		return (NULL);
-	create_words(words, s, c, word_count);
-	return (words);
-}
-
-
-
-char    *ft_strjoin2(char *s1, char *s2)
-{
-    size_t  i;
-    size_t  l1;
-    size_t  l2;
-    char    *str;
-
-    l1 = ft_strlen(s1);
-    l2 = ft_strlen(s2);
-    str = (char*)malloc(sizeof(char) * (l1 + l2 + 1));
-    if (str == 0)
-        return (str);
-    i = 0;
-    while (i < l1)
-    {
-        str[i] = s1[i];
-        ++i;
-    }
-    i = 0;
-    while (i < l2)
-    {
-        str[l1 + i] = s2[i];
-        ++i;
-    }
-    str[l1 + i] = 0;
-    return (str);
-}
 ///// ******************************************
 
 
@@ -379,18 +257,18 @@ int check_borders(t_map *map)
 	while (map->map[i] != NULL)
 	{
 		if (ft_strlen(map->map[i]) !=  map->width)
-			return(4);
+			return(2);
 		if (map->map[i][0] != '1')
-			return(5);
+			return(3);
 		if (map->map[i][map->width - 1] != '1')
-			return(5);
+			return(4);
 		i++;
 		//printf("%d - %swidth_proverka\n", ft_strlen(map->map[i]), map->map[i]);
 	}
 	if (ft_consist(map->map[0], '1'))
-		return(10);
+		return(5);
 	if (ft_consist(map->map[len-1], '1'))
-		return(7);
+		return(6);
 	return 0;
 }
 
@@ -403,8 +281,9 @@ void build_the_map(char *name_of_the_map, t_map *map)
 	error  = check_the_type_of_map(name_of_the_map);
 	char *line;
 	int fd = open(name_of_the_map, O_RDONLY);
-	if (error)
-		process_errors(error);
+	if (fd == -1)
+		error = 10;
+	process_errors(error);
 	map->length = 0;
 	char *line_common = NULL;
 	while (get_next_line(fd, &line))
@@ -419,12 +298,7 @@ void build_the_map(char *name_of_the_map, t_map *map)
 	// printf("{%s}\n" ,line_common);
 	map->map = ft_split(line_common, '\n', map);
 	error = check_borders(map);
-	if (error)
-	{
-		printf("%d - error \n", error);
-		process_errors(error);
-	}
-	printf("{%s}\n" ,map->map[0]);
+	process_errors(error);
 }
 
 
@@ -434,42 +308,10 @@ int main(int argc, char **argv)
 	t_map map;
 
 	if (argc != 2)
-		printf("dd\n");
-		// process_errors(56);
+		process_errors(12);
 
 	build_the_map(argv[1], &map);
 	play(&map);
 	return (0);
 }
 
-
-// int main()
-// {
-// 	char *line;
-// 	// line = (char*)malloc(1);
-// 	int fd;
-// 	fd = open("bla_bla.txt", O_RDONLY);
-// 	get_next_line(fd, &line);
-// 	// printf( "{%s}\n" ,line);
-// 	printf("===================");
-// 	get_next_line(fd, &line);
-// 	// printf( "|%s|\n" ,line);
-// 	// get_next_line(fd, &line);
-// 	// printf( "|%s|\n" ,line);
-// 	// get_next_line(fd, &line);
-// 	// printf( "|%s|\n" ,line);
-// }
-//2 вверх
-// 1 вниз
-// 17 влево
-// вправо
-	// Esc = 53,
-	// Up = 13,
-	// Down = 1,
-	// Right = 2,
-	// Left = 0,
-// Создать карту
-// Соорудить стены
-// СДелать Невского 
-// Сделать Баженова
-// Сделать куриные крылья
