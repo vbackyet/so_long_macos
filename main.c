@@ -275,11 +275,13 @@ int check_borders(t_map *map)
 
 
 
+
 void build_the_map(char *name_of_the_map, t_map *map)
 {
 	int error;
 	error  = check_the_type_of_map(name_of_the_map);
 	char *line;
+	char *tmp;
 	int fd = open(name_of_the_map, O_RDONLY);
 	if (fd == -1)
 		error = 10;
@@ -291,12 +293,19 @@ void build_the_map(char *name_of_the_map, t_map *map)
 		map->width = ft_strlen(line);
 		// printf("%d - width\n", map->width);
 		// printf("{%d}\n" ,map->width);
+		tmp = line_common;
 		line_common = ft_strjoin2(line_common, line);
+		free(tmp);
 		// printf("{%s}\n" ,line_common);
+		tmp = line_common;
 		line_common = ft_strjoin2(line_common, "\n");
+		free(tmp);
+		free(line);
 	}
+	free(line);
 	// printf("{%s}\n" ,line_common);
 	map->map = ft_split(line_common, '\n', map);
+	free(line_common);
 	error = check_borders(map);
 	process_errors(error);
 }
@@ -311,7 +320,9 @@ int main(int argc, char **argv)
 		process_errors(12);
 
 	build_the_map(argv[1], &map);
-	play(&map);
+	sleep(100);
+	//play(&map);
+	free(map.map);
 	return (0);
 }
 

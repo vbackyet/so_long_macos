@@ -1,27 +1,27 @@
 #include "so_long.h"
 
 
-char	*ft_substr(char *s, unsigned int start, size_t len)
-{
-	size_t	s_length;
-	char	*s_start;
-	char	*new_string_start;
-	char	*new_string;
+// char	*ft_substr(char *s, unsigned int start, size_t len)
+// {
+// 	size_t	s_length;
+// 	char	*s_start;
+// 	char	*new_string_start;
+// 	char	*new_string;
 
-	if (s == NULL)
-		return (NULL);
-	new_string_start = malloc(sizeof(char) * (len + 1));
-	if (new_string_start == NULL)
-		return (NULL);
-	new_string = new_string_start;
-	s_length = ft_strlen(s);
-	s_start = (char *)s;
-	s += start;
-	while ((size_t)(s - s_start) < s_length && len--)
-		*new_string++ = *s++;
-	*new_string = '\0';
-	return (new_string_start);
-}
+// 	if (s == NULL)
+// 		return (NULL);
+// 	new_string_start = malloc(sizeof(char) * (len + 1));
+// 	if (new_string_start == NULL)
+// 		return (NULL);
+// 	new_string = new_string_start;
+// 	s_length = ft_strlen(s);
+// 	s_start = (char *)s;
+// 	s += start;
+// 	while ((size_t)(s - s_start) < s_length && len--)
+// 		*new_string++ = *s++;
+// 	*new_string = '\0';
+// 	return (new_string_start);
+// }
 
 
 char    *ft_strjoin2(char *s1, char *s2)

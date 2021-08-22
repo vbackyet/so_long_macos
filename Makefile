@@ -42,7 +42,7 @@ fclean	:	clean
 	rm -f $(NAME) 
 
 # re:		:	fclean $(NAME)
-#  fclean
+#  	fclean
 # 	make all
 	
 
