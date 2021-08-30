@@ -80,6 +80,3 @@ char	**ft_split(char const *s, char c, t_map *map)
 	wr(s, main_k, quant, c);
 	return (main_k);
 }
-
-
-

@@ -1,12 +1,12 @@
-#include "so_long.h"
-#include "get_next_line.h"
+#include "../so_long.h"
+#include "../get_next_line.h"
 
-void	stack_bricks(int x, int y, t_game *g, t_map *map)
+void	stack_bricks_bonus(int x, int y, t_game *g, t_map *map)
 {
 	int		z;
 
 	z = 50;
-	initial_stack_bricks(x, y, g, map);
+	initial_stack_bricks_bonus(x, y, g, map);
 	if (map->map[x - 1][y - 1] == 'P')
 	{
 		mlx_put_image_to_window(g->mlx, g->win, g->hero, y * z - z, x * z - z);
@@ -45,7 +45,7 @@ void	play(t_map *m)
 	{
 		while (x)
 		{
-			stack_bricks(x, y, &g, m);
+			stack_bricks_bonus(x, y, &g, m);
 			x--;
 		}
 		x = m->length;
